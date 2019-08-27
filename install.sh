@@ -12,8 +12,8 @@ if [ -r "$DD_CONFIG" ]; then
 	echo "Found an existing config $DD_CONFIG"
 else
 	if [ ! -d "$DD_CONFIG_DIR" ]; then
-		/usr/bin/mkdir -p $DD_CONFIG_DIR
-		/usr/bin/touch $DD_CONFIG
+		mkdir -p $DD_CONFIG_DIR
+		touch $DD_CONFIG
 		echo "First time intalling making $DD_CONFIG_DIR and $DD_CONFIG"
 	fi
 fi
@@ -41,6 +41,12 @@ if [ "$ID" == "arch" ]; then
 	DD_CHROMIUM="/usr/bin/chromium"
 	DD_KILL_CHROMIUM_GREP="chromium"
 	DD_PKG_GET="/usr/bin/sudo pacman --needed -S"
+	$DD_PKG_GET php-xml
+else
+	DD_HAS_PHP_XML="`dpkg -l php-xml |grep ii|wc -l`"
+	if [ "$DD_HAS_PHP_XML" == "0" ]; then
+		$DD_PKG_GET php-xml
+	fi
 fi
 for need in $DD_CHECK; do
 	NEED_TEST=`which $need`
@@ -83,7 +89,7 @@ if [ "$DD_INSTALL" == "no" ] && [ ! -d "$DD_LOCAL_DIR" ]; then
 fi
 DD_XZ_FILE="$DD_HOME/ddojo_local-$DD_VERSION.xz"
 pkill -f "/usr/bin/php.*/ddojo_local/"
-/usr/bin/pkill $DD_KILL_CHROMIUM_GREP
+/usr/bin/pkill -f $DD_KILL_CHROMIUM_GREP
 if [ "$DD_DOWNLOAD" == "yes" ] && [ ! -r "$DD_XZ_FILE" ]; then
 	echo "Downloading $DD_DOWNLOAD_URL to $DD_XZ_FILE"
 	/usr/bin/wget -O $DD_XZ_FILE $DD_DOWNLOAD_URL
@@ -93,18 +99,18 @@ fi
 if [ "$DD_INSTALL" == "yes" ]; then
 	if [ -d "$DD_LOCAL_DIR" ]; then
 		echo "Moving existing $DD_LOCAL_DIR to ${DD_LOCAL_DIR}_`date +%s`"
-		/usr/bin/mv $DD_LOCAL_DIR "$DD_LOCAL_DIR.`date +%s`"
+		mv $DD_LOCAL_DIR "$DD_LOCAL_DIR.`date +%s`"
 	fi
 	echo "Unpacking files from $DD_XZ_FILE"
 	if [ ! -r $DD_XZ_FILE ]; then
 		echo "ERROR: File $DD_XZ_FILE is missing, unable to unpack"
 		exit
 	fi
-	/usr/bin/tar xJf $DD_XZ_FILE
+	tar xJf $DD_XZ_FILE
 	if [ "$DD_FIRST_INSTALL" == "yes" ]; then
-		echo "DD_INSTALLED_VERSION=\"$DD_VERSION\"" | /usr/bin/tee --append $DD_CONFIG
+		echo "DD_INSTALLED_VERSION=\"$DD_VERSION\"" | tee --append $DD_CONFIG
 	fi
-	/usr/bin/sed -i "s/^\(DD_INSTALLED_VERSION\s*=\s*\).*\$/\1$DD_VERSION/" $DD_CONFIG
+	sed -i "s/^\(DD_INSTALLED_VERSION\s*=\s*\).*\$/\1$DD_VERSION/" $DD_CONFIG
 	echo "Writing DD_INSTALLED_VERSION=$DD_VERSION to $DD_CONFIG"
 fi
 if [ ! -x $DD_HOME/ddojo_local/bin/console ]; then
@@ -113,7 +119,7 @@ if [ ! -x $DD_HOME/ddojo_local/bin/console ]; then
 fi
 cd $DD_HOME/ddojo_local
 echo "Launching client listening at http://localhost:8000/"
-bin/console server:start > /dev/null 2>&1 &
+bin/console server:start > /dev/null 2>&1
 echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
 $DD_CHROMIUM --app="http://localhost:8000" > /dev/null 2>&1 &
 
