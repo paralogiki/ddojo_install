@@ -1,46 +1,119 @@
 #!/bin/bash
+DD_HOME=~
 DD_VERSION="0.1"
 DD_NEEDS=""
+DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
+DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
+DD_INSTALLED_VERSION=""
+DD_FIRST_INSTALL="yes"
+if [ -r "$DD_CONFIG" ]; then
+	source $DD_CONFIG
+	DD_FIRST_INSTALL="no"
+	echo "Found an existing config $DD_CONFIG"
+else
+	if [ ! -d "$DD_CONFIG_DIR" ]; then
+		/usr/bin/mkdir -p $DD_CONFIG_DIR
+		/usr/bin/touch $DD_CONFIG
+		echo "First time intalling making $DD_CONFIG_DIR and $DD_CONFIG"
+	fi
+fi
+# TODO Need to do real version comparison
+# 1.10 > 1.9 or 1.1.3 < 1.0.2
+# For now if versions are different we'll overwrite
+DD_DOWNLOAD="yes"
+DD_INSTALL="yes"
+if [ -n "$DD_INSTALLED_VERSION" ] && [ "$DD_VERSION" == "$DD_INSTALLED_VERSION" ];then
+	DD_INSTALL="no"
+	DD_DOWNLOAD="no"
+	echo "Installed version matches live version, not going to download or install new files"
+fi
 if [ ! -r "/etc/os-release" ]; then
-	echo "We cannot read from /etc/os-release, unable to continue"
+	echo "ERROR: We cannot read from /etc/os-release, unable to continue"
 	exit
 fi
 source /etc/os-release
-echo "Installing required packages:"
-echo "-----------------------------"
 DD_CHECK="wget xz chromium-browser php xdotool"
 DD_CHROMIUM="/usr/bin/chromium-browser"
+DD_KILL_CHROMIUM_GREP="chromium-browser"
+DD_PKG_GET="/usr/bin/sudo apt-get install"
 if [ "$ID" == "arch" ]; then
 	DD_CHECK="wget xz chromium php xdotool"
 	DD_CHROMIUM="/usr/bin/chromium"
-	sudo pacman --needed -S wget xz chromium php xdotool
-else
-	sudo apt-get install wget xz chromium-browser php xdotool
+	DD_KILL_CHROMIUM_GREP="chromium"
+	DD_PKG_GET="/usr/bin/sudo pacman --needed -S"
 fi
 for need in $DD_CHECK; do
 	NEED_TEST=`which $need`
 	if [ "$NEED_TEST" != "/usr/bin/$need" ]; then
 		echo "$need is not installed, will attempt to install"
 		if [ -z "$DD_NEEDS" ]; then
-			DD_NEEDS+="$need"
+			DD_NEEDS="$need"
 		else
 			DD_NEEDS+=" $need"
 		fi
 	fi
 done
 if [ -n "$DD_NEEDS" ]; then
-	echo "Failed to install the following packages: $DD_NEEDS, unable to continue"
-	exit
+	echo "We need to install the following packages: $DD_NEEDS"
+	$DD_PKG_GET $DD_NEEDS
+	DD_NEEDS2=""
+	for need in $DD_CHECK; do
+		NEED_TEST=`which $need`
+		if [ "$NEED_TEST" != "/usr/bin/$need" ]; then
+			echo "$need failed to install"
+			if [ -z "$DD_NEEDS2" ]; then
+				DD_NEEDS2="$need"
+			else
+				DD_NEEDS2+=" $need"
+			fi
+		fi
+	done
+	if [ -n "$DD_NEEDS2" ]; then
+		echo "ERROR: Failed to install the following packages: $DD_NEEDS2, unable to continue"
+		exit
+	fi
 fi
-DD_HOME=~
 cd $DD_HOME
 DD_DOWNLOAD_URL="https://www.displaydojo.com/downloads/ddojo_local-$DD_VERSION.xz"
-/usr/bin/wget -O $DD_HOME/ddojo_local.xz $DD_DOWNLOAD_URL
-/usr/bin/tar xJf ddojo_local.xz
+DD_LOCAL_DIR="$DD_HOME/ddojo_local"
+if [ "$DD_INSTALL" == "no" ] && [ ! -d "$DD_LOCAL_DIR" ]; then
+	echo "DD_INSTALL was no, but $DD_LOCAL_DIR does not exist, setting DD_INSTALL to yes"
+	DD_INSTALL="yes"
+	DD_DOWNLOAD="yes"
+fi
+DD_XZ_FILE="$DD_HOME/ddojo_local-$DD_VERSION.xz"
+pkill -f "/usr/bin/php.*/ddojo_local/"
+/usr/bin/pkill $DD_KILL_CHROMIUM_GREP
+if [ "$DD_DOWNLOAD" == "yes" ] && [ ! -r "$DD_XZ_FILE" ]; then
+	echo "Downloading $DD_DOWNLOAD_URL to $DD_XZ_FILE"
+	/usr/bin/wget -O $DD_XZ_FILE $DD_DOWNLOAD_URL
+else
+	echo "Found existing $DD_XZ_FILE or DD_DOWNLOAD is no, not downloading new one"
+fi
+if [ "$DD_INSTALL" == "yes" ]; then
+	if [ -d "$DD_LOCAL_DIR" ]; then
+		echo "Moving existing $DD_LOCAL_DIR to ${DD_LOCAL_DIR}_`date +%s`"
+		/usr/bin/mv $DD_LOCAL_DIR "$DD_LOCAL_DIR.`date +%s`"
+	fi
+	echo "Unpacking files from $DD_XZ_FILE"
+	if [ ! -r $DD_XZ_FILE ]; then
+		echo "ERROR: File $DD_XZ_FILE is missing, unable to unpack"
+		exit
+	fi
+	/usr/bin/tar xJf $DD_XZ_FILE
+	if [ "$DD_FIRST_INSTALL" == "yes" ]; then
+		echo "DD_INSTALLED_VERSION=\"$DD_VERSION\"" | /usr/bin/tee --append $DD_CONFIG
+	fi
+	/usr/bin/sed -i "s/^\(DD_INSTALLED_VERSION\s*=\s*\).*\$/\1$DD_VERSION/" $DD_CONFIG
+	echo "Writing DD_INSTALLED_VERSION=$DD_VERSION to $DD_CONFIG"
+fi
 if [ ! -x $DD_HOME/ddojo_local/bin/console ]; then
-	echo "Unable to find local client files, unable to continue"
+	echo "ERROR: Unable to find local client files, unable to continue"
 	exit
 fi
 cd $DD_HOME/ddojo_local
-bin/console server:start
-$DD_CHROMIUM --app="http://localhost:8000"
+echo "Launching client listening at http://localhost:8000/"
+bin/console server:start > /dev/null 2>&1 &
+echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
+$DD_CHROMIUM --app="http://localhost:8000" > /dev/null 2>&1 &
+
