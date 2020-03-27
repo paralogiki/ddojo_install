@@ -1,7 +1,7 @@
 #!/bin/bash
 DD_HOME=~
 DD_VERSION="0.1"
-DD_NEEDS=""
+DD_NEEDS="php php-xml "
 DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
 DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
 DD_INSTALLED_VERSION=""
@@ -35,18 +35,18 @@ source /etc/os-release
 DD_CHECK="wget xz chromium-browser php xdotool"
 DD_CHROMIUM="/usr/bin/chromium-browser"
 DD_KILL_CHROMIUM_GREP="chromium-browser"
-DD_PKG_GET="/usr/bin/sudo apt-get install"
+DD_PKG_GET="/usr/bin/sudo apt-get install -y"
 if [ "$ID" == "arch" ]; then
 	DD_CHECK="wget xz chromium php xdotool"
 	DD_CHROMIUM="/usr/bin/chromium"
 	DD_KILL_CHROMIUM_GREP="chromium"
 	DD_PKG_GET="/usr/bin/sudo pacman --needed -S"
-	$DD_PKG_GET php-xml
-else
-	DD_HAS_PHP_XML="`dpkg -l php-xml |grep ii|wc -l`"
-	if [ "$DD_HAS_PHP_XML" == "0" ]; then
-		$DD_PKG_GET php-xml
-	fi
+	#$DD_PKG_GET php-xml
+elif [ "$ID" == "debian" ]; then
+	DD_CHECK="wget xz chromium php xdotool"
+	DD_CHROMIUM="/usr/bin/chromium"
+	DD_KILL_CHROMIUM_GREP="chromium"
+	#$DD_PKG_GET php-xml
 fi
 for need in $DD_CHECK; do
 	NEED_TEST=`which $need`
