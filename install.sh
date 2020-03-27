@@ -119,7 +119,8 @@ if [ ! -x $DD_HOME/ddojo_local/bin/console ]; then
 fi
 cd $DD_HOME/ddojo_local
 echo "Launching client listening at http://localhost:8000/"
-bin/console server:start > /dev/null 2>&1
+bin/console server:start
+sleep 5
 echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
-$DD_CHROMIUM --app="http://localhost:8000" > /dev/null 2>&1 &
+$DD_CHROMIUM --start-fullscreen --app="http://localhost:8000" > /dev/null 2>&1 &
 
