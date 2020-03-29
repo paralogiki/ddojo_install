@@ -1,7 +1,7 @@
 #!/bin/bash
 DD_HOME=~
 DD_VERSION="0.1"
-DD_NEEDS="php php-xml scrot "
+DD_NEEDS="php php-xml scrot unclutter "
 DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
 DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
 DD_INSTALLED_VERSION=""
