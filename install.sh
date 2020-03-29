@@ -120,7 +120,5 @@ fi
 cd $DD_HOME/ddojo_local
 echo "Launching client listening at http://localhost:8000/"
 bin/console server:start
-sleep 5
 echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
-$DD_CHROMIUM --start-fullscreen --app="http://localhost:8000" > /dev/null 2>&1 &
-
+$DD_CHROMIUM --noerrdialogs --start-fullscreen --disable-translate --no-first-run --fast --fast-start --disable-infobars --disable-features=TranslateUI --kiosk http://localhost:8000 > /dev/null 2>&1 &
