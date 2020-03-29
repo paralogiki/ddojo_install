@@ -120,5 +120,11 @@ fi
 cd $DD_HOME/ddojo_local
 echo "Launching client listening at http://localhost:8000/"
 bin/console server:start
+if [ -x /usr/bin/unclutter ]; then
+	/usr/bin/unclutter -idle 1.0 &
+fi
 echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
-$DD_CHROMIUM --noerrdialogs --start-fullscreen --disable-translate --no-first-run --fast --fast-start --disable-infobars --disable-features=TranslateUI --kiosk http://localhost:8000 > /dev/null 2>&1 &
+# --disable-web-security requires --user-data-dir
+# --test-type removes the disabled web-security warning
+# --check-for-update-interval=31536000
+$DD_CHROMIUM --disable-web-security --user-data-dir=/home/pi/.config/ddojochromium --test-type --check-for-update-interval=31536000 --noerrdialogs --start-fullscreen --disable-translate --no-first-run --fast --fast-start --disable-infobars --disable-features=TranslateUI --allow-file-access-from-files --kiosk http://localhost:8000 > /dev/null 2>&1 &
