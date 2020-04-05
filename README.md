@@ -1,5 +1,8 @@
 # Display Dojo's Linux Device client installer
 Install via
 ```
-$ wget https://www.displaydojo.com/client/v1/install -O - | bash
+$ curl -o- https://www.displaydojo.com/client/v1/install | bash
+```
+```
+$ wget -qO- https://www.displaydojo.com/client/v1/install | bash
 ```
