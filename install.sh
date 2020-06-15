@@ -32,18 +32,18 @@ if [ ! -r "/etc/os-release" ]; then
 	exit
 fi
 source /etc/os-release
-DD_CHECK="wget xz chromium-browser php xdotool"
+DD_CHECK="wget chromium-browser php xdotool"
 DD_CHROMIUM="/usr/bin/chromium-browser"
 DD_KILL_CHROMIUM_GREP="chromium-browser"
 DD_PKG_GET="/usr/bin/sudo apt-get install -y"
 if [ "$ID" == "arch" ]; then
-	DD_CHECK="wget xz chromium php xdotool"
+	DD_CHECK="wget chromium php xdotool"
 	DD_CHROMIUM="/usr/bin/chromium"
 	DD_KILL_CHROMIUM_GREP="chromium"
 	DD_PKG_GET="/usr/bin/sudo pacman --needed -S"
 	#$DD_PKG_GET php-xml
 elif [ "$ID" == "debian" ]; then
-	DD_CHECK="wget xz chromium php xdotool"
+	DD_CHECK="wget chromium php xdotool"
 	DD_CHROMIUM="/usr/bin/chromium"
 	DD_KILL_CHROMIUM_GREP="chromium"
 	#$DD_PKG_GET php-xml
@@ -80,6 +80,7 @@ if [ -n "$DD_NEEDS" ]; then
 	fi
 fi
 cd $DD_HOME
+DD_GIT_URL="https://github.com/paralogiki/ddojo_client_full.git"
 DD_DOWNLOAD_URL="https://www.displaydojo.com/downloads/ddojo_local-$DD_VERSION.xz"
 DD_LOCAL_DIR="$DD_HOME/ddojo_local"
 if [ "$DD_INSTALL" == "no" ] && [ ! -d "$DD_LOCAL_DIR" ]; then
@@ -87,26 +88,14 @@ if [ "$DD_INSTALL" == "no" ] && [ ! -d "$DD_LOCAL_DIR" ]; then
 	DD_INSTALL="yes"
 	DD_DOWNLOAD="yes"
 fi
-DD_XZ_FILE="$DD_HOME/ddojo_local-$DD_VERSION.xz"
 pkill -f "/usr/bin/php.*/ddojo_local/"
 /usr/bin/pkill -f $DD_KILL_CHROMIUM_GREP
-if [ "$DD_DOWNLOAD" == "yes" ] && [ ! -r "$DD_XZ_FILE" ]; then
-	echo "Downloading $DD_DOWNLOAD_URL to $DD_XZ_FILE"
-	/usr/bin/wget -O $DD_XZ_FILE $DD_DOWNLOAD_URL
-else
-	echo "Found existing $DD_XZ_FILE or DD_DOWNLOAD is no, not downloading new one"
-fi
 if [ "$DD_INSTALL" == "yes" ]; then
 	if [ -d "$DD_LOCAL_DIR" ]; then
 		echo "Moving existing $DD_LOCAL_DIR to ${DD_LOCAL_DIR}_`date +%s`"
 		mv $DD_LOCAL_DIR "$DD_LOCAL_DIR.`date +%s`"
 	fi
-	echo "Unpacking files from $DD_XZ_FILE"
-	if [ ! -r $DD_XZ_FILE ]; then
-		echo "ERROR: File $DD_XZ_FILE is missing, unable to unpack"
-		exit
-	fi
-	tar xJf $DD_XZ_FILE
+	git clone $DD_GIT_URL $DD_LOCAL_DIR
 	if [ "$DD_FIRST_INSTALL" == "yes" ]; then
 		echo "DD_INSTALLED_VERSION=\"$DD_VERSION\"" | tee --append $DD_CONFIG
 	fi
