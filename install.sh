@@ -57,11 +57,12 @@ DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool ch
 DD_CHROMIUM="/usr/bin/chromium-browser"
 DD_KILL_CHROMIUM_GREP="chromium-browser"
 DD_PKG_GET="/usr/bin/sudo apt-get install -y"
-if [ "$ID" == "debian" ]; then
+if [ "$ID" == "raspbian" ]; then
+	# Nothing to switch
+elif [ "$ID" == "debian" ]; then
 	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
 	DD_CHROMIUM="/usr/bin/chromium"
 	DD_KILL_CHROMIUM_GREP="chromium"
-	#$DD_PKG_GET php-xml
 else
 	echo "Unsupported operating system"
 	exit
