@@ -59,6 +59,7 @@ DD_KILL_CHROMIUM_GREP="chromium-browser"
 DD_PKG_GET="/usr/bin/sudo apt-get install -y"
 if [ "$ID" == "raspbian" ]; then
 	# Nothing to switch
+	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
 elif [ "$ID" == "debian" ]; then
 	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
 	DD_CHROMIUM="/usr/bin/chromium"
