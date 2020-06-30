@@ -72,7 +72,7 @@ DD_INSTALL_PKGS=$( check_needs "$DD_NEEDS" )
 if [ -n "$DD_INSTALL_PKGS" ]; then
 	echo "We need to install the following packages: $DD_INSTALL_PKGS"
 	$DD_PKG_GET $DD_INSTALL_PKGS
-	DD_NEEDS2=$ ( check_needs "$DD_NEEDS2" )
+	DD_NEEDS2=$( check_needs "$DD_NEEDS2" )
 	if [ -n "$DD_NEEDS2" ]; then
 		echo "ERROR: Failed to install the following packages: $DD_NEEDS2, unable to continue"
 		exit
