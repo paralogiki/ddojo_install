@@ -1,5 +1,6 @@
 #!/bin/bash
 DD_HOME=~
+DD_LOCAL_DIR="$DD_HOME/ddojo_local"
 DD_VERSION="0.2"
 DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
 DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
@@ -37,6 +38,15 @@ function set_gpu_mem() {
 		echo "Setting gpu_mem=128 in /boot/config.txt"
 		echo "gpu_mem=128" | sudo /usr/bin/tee -a /boot/config.txt > /dev/null
 	fi
+}
+function set_current_migration() {
+	# We are on a fresh install so we set the current migration
+	# to the current date timestamp
+	DD_CURRENT_TIME="`date +%s`"
+	if [ ! -d "$DD_LOCAL_DIR/migrations" ]; then
+		mkdir -p $DD_LOCAL_DIR/migrations
+	fi
+	echo $DD_CURRENT_TIME >> $DD_LOCAL_DIR/migrations/current.migration
 }
 # TODO Need to do real version comparison
 # 1.10 > 1.9 or 1.1.3 < 1.0.2
@@ -81,7 +91,6 @@ fi
 cd $DD_HOME
 DD_GIT_URL="https://github.com/paralogiki/ddojo_client_full.git"
 DD_DOWNLOAD_URL="https://www.displaydojo.com/downloads/ddojo_local-$DD_VERSION.xz"
-DD_LOCAL_DIR="$DD_HOME/ddojo_local"
 if [ "$DD_INSTALL" == "no" ] && [ ! -d "$DD_LOCAL_DIR" ]; then
 	echo "DD_INSTALL was no, but $DD_LOCAL_DIR does not exist, setting DD_INSTALL to yes"
 	DD_INSTALL="yes"
@@ -101,6 +110,7 @@ if [ "$DD_INSTALL" == "yes" ]; then
 	sed -i "s/^\(DD_INSTALLED_VERSION\s*=\s*\).*\$/\1$DD_VERSION/" $DD_CONFIG
 	echo "Writing DD_INSTALLED_VERSION=$DD_VERSION to $DD_CONFIG"
 	set_gpu_mem
+	set_current_migration
 fi
 if [ ! -x $DD_HOME/ddojo_local/bin/console ]; then
 	echo "ERROR: Unable to find local client files, unable to continue"
