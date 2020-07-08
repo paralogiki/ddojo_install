@@ -1,6 +1,6 @@
 #!/bin/bash
 DD_HOME=~
-DD_VERSION="0.1"
+DD_VERSION="0.2"
 DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
 DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
 DD_INSTALLED_VERSION=""
