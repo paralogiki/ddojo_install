@@ -1,7 +1,7 @@
 #!/bin/bash
 DD_HOME=~
 DD_LOCAL_DIR="$DD_HOME/ddojo_local"
-DD_VERSION="0.4"
+DD_VERSION="0.6"
 DD_CONFIG_DIR="$DD_HOME/.config/ddojo"
 DD_CONFIG="$DD_HOME/.config/ddojo/ddojo.conf"
 DD_INSTALLED_VERSION=""
@@ -71,9 +71,13 @@ if [ "$ID" == "raspbian" ]; then
 	# Nothing to switch
 	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
 elif [ "$ID" == "debian" ]; then
-	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
-	DD_CHROMIUM="/usr/bin/chromium"
-	DD_KILL_CHROMIUM_GREP="chromium"
+	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
+	if [ "$VERSION_ID" == "10" ]; then
+		# Debian buster
+		DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
+		DD_CHROMIUM="/usr/bin/chromium"
+		DD_KILL_CHROMIUM_GREP="chromium"
+	fi
 else
 	echo "Unsupported operating system"
 	exit
