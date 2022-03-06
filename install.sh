@@ -67,21 +67,22 @@ DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool ch
 DD_CHROMIUM="/usr/bin/chromium-browser"
 DD_KILL_CHROMIUM_GREP="chromium-browser"
 DD_PKG_GET="/usr/bin/sudo apt-get install -y"
-if [ "$ID" == "raspbian" ]; then
-	# Nothing to switch
-	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
-elif [ "$ID" == "debian" ]; then
-	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
-	if [ "$VERSION_ID" == "10" ]; then
-		# Debian buster
-		DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
-		DD_CHROMIUM="/usr/bin/chromium"
-		DD_KILL_CHROMIUM_GREP="chromium"
-	fi
-else
-	echo "Unsupported operating system"
-	exit
-fi
+# We need chromium-browser on both buster and bullseye
+#if [ "$ID" == "raspbian" ]; then
+#	# Nothing to switch
+#	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
+#elif [ "$ID" == "debian" ]; then
+#	DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
+#	if [ "$VERSION_ID" == "10" ]; then
+#		# Debian buster
+#		DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium"
+#		DD_CHROMIUM="/usr/bin/chromium"
+#		DD_KILL_CHROMIUM_GREP="chromium"
+#	fi
+#else
+#	echo "Unsupported operating system"
+#	exit
+#fi
 DD_INSTALL_PKGS=$( check_needs "$DD_NEEDS" )
 if [ -n "$DD_INSTALL_PKGS" ]; then
 	echo "We need to install the following packages: $DD_INSTALL_PKGS"
