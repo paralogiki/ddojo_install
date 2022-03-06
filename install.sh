@@ -131,4 +131,8 @@ echo "Opening $DD_KILL_CHROMIUM_GREP at http://localhost:8000"
 # --disable-web-security requires --user-data-dir
 # --test-type removes the disabled web-security warning
 # --check-for-update-interval=31536000
+if [ ! -f "$DD_CHROMIUM" ]; then
+	echo "ERROR: $DD_CHROMIUM not found, unable to launch display"
+	exit
+fi
 $DD_CHROMIUM --disable-web-security --user-data-dir=/home/pi/.config/ddojochromium --test-type --check-for-update-interval=31536000 --noerrdialogs --start-fullscreen --disable-translate --no-first-run --fast --fast-start --disable-infobars --disable-features=TranslateUI --allow-file-access-from-files --kiosk http://localhost:8000 > /dev/null 2>&1 &
