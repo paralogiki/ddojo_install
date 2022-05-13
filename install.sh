@@ -63,7 +63,7 @@ if [ ! -r "/etc/os-release" ]; then
 	exit
 fi
 source /etc/os-release
-DD_NEEDS="php-cli php-xml php-json php-tokenizer scrot unclutter wget xdotool chromium-browser"
+DD_NEEDS="php-cli php-xml php-json php-tokenizer php-gd scrot unclutter wget xdotool chromium-browser"
 DD_CHROMIUM="/usr/bin/chromium-browser"
 DD_KILL_CHROMIUM_GREP="chromium-browser"
 DD_PKG_GET="/usr/bin/sudo apt-get install -y"
